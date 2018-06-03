@@ -21,13 +21,13 @@ class CryptoSpider(scrapy.Spider):
     def parse_thread_pages(self, response):
         sel = Selector(response) \
             .xpath("//a[contains(@class,'navPages)]/@href")
-        pages = sel.re_first(r'.*page=(\d+)')
-        link = sel.re_first(r'(.*page=).*')
+        pages = sel.re_first(r'.*topic=(\d+\.\d+)')
+        link = sel.re_first(r'(.*topic=).*')
         if pages is None:
             yield from self.parse_thread_messages(response)
         else:
             for p in range(int(pages)):
-                url = response.urljoin(link + str(p + 1))
+                url = response.urljoin(link + str((p + 1)*40))
                 request = scrapy.Request(url, callback=self.parse_thread_messages)
                 request.meta['topic'] = response.meta['topic']
                 yield request
